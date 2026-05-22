@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
+## [0.2.1] - 2026-05-22
+
+### Mantenimiento
+
+- 🔧 `bin.panama-ruc` normalizado (`dist/cli/index.js`) según `npm pkg fix`.
+- ⬆️ Workflows de CI/Release actualizados a `actions/checkout@v5` y
+  `actions/setup-node@v5` (compatibles con Node.js 24).
+
 ## [0.2.0] - 2026-05-22
 
 ### Agregado
