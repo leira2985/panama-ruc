@@ -1,0 +1,124 @@
+{
+  "_meta": {
+    "description": "RUCs con DV verificado contra fuentes externas independientes.",
+    "sources": {
+      "juancorradine": "https://github.com/juancorradine/Panama-RUC-DV-Calculator (tests/) — validado contra implementación oficial DGI",
+      "apple314159": "https://github.com/apple314159/panama-dv",
+      "dgi": "Dirección General de Ingresos de Panamá, documento 'Cálculo del DV del RUC' (2018-05)"
+    }
+  },
+  "naturales_sin_letra": [
+    {
+      "ruc": "8-783-1657",
+      "dv": "23",
+      "provincia": "08",
+      "folio": "783",
+      "asiento": "1657",
+      "source": "dgi"
+    },
+    {
+      "ruc": "1-184-921",
+      "dv": "49",
+      "provincia": "01",
+      "folio": "184",
+      "asiento": "921",
+      "source": "juancorradine"
+    },
+    { "ruc": "8-769-1080", "dv": "56", "source": "juancorradine" },
+    { "ruc": "5-257-218", "dv": "09", "source": "juancorradine" },
+    { "ruc": "6-108-289", "dv": "79", "source": "juancorradine" },
+    { "ruc": "8-28-1284", "dv": "33", "source": "juancorradine" },
+    { "ruc": "2-7-89", "dv": "20", "source": "juancorradine" },
+    { "ruc": "2-1234-123456789", "dv": "01", "source": "juancorradine" }
+  ],
+  "naturales_con_letra_inicial": [
+    { "ruc": "E-8-127702", "dv": "16", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-8-127703", "dv": "05", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-8-12770", "dv": "72", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-1234-12770", "dv": "98", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-1235-12770", "dv": "23", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-1-11", "dv": "63", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-7824-53189", "dv": "90", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-9624-41065", "dv": "80", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-6521-53249", "dv": "99", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-5056-27219", "dv": "16", "letra": "E", "source": "juancorradine" },
+    { "ruc": "E-8-96407", "dv": "29", "letra": "E", "source": "juancorradine" },
+    { "ruc": "PE-1-19", "dv": "60", "letra": "PE", "source": "juancorradine" },
+    { "ruc": "PE-123-12345", "dv": "42", "letra": "PE", "source": "juancorradine" },
+    { "ruc": "PE-842-3681", "dv": "51", "letra": "PE", "source": "juancorradine" },
+    { "ruc": "PE-712-5789", "dv": "82", "letra": "PE", "source": "juancorradine" },
+    { "ruc": "PE-523-8262", "dv": "37", "letra": "PE", "source": "juancorradine" },
+    { "ruc": "N-19-1821", "dv": "11", "letra": "N", "source": "juancorradine" },
+    { "ruc": "N-1-24", "dv": "89", "letra": "N", "source": "juancorradine" },
+    { "ruc": "N-1234-12345", "dv": "00", "letra": "N", "source": "juancorradine" },
+    { "ruc": "N-7824-53189", "dv": "73", "letra": "N", "source": "juancorradine" },
+    { "ruc": "N-9624-41065", "dv": "63", "letra": "N", "source": "juancorradine" },
+    { "ruc": "N-6521-53249", "dv": "72", "letra": "N", "source": "juancorradine" }
+  ],
+  "naturales_con_letra_interna": [
+    { "ruc": "8AV-1-196", "dv": "90", "letra": "AV", "source": "juancorradine" },
+    { "ruc": "2AV-1234-12345", "dv": "26", "letra": "AV", "source": "juancorradine" },
+    { "ruc": "2AV-1234-123", "dv": "33", "letra": "AV", "source": "juancorradine" },
+    { "ruc": "2AV-123-123456", "dv": "28", "letra": "AV", "source": "juancorradine" },
+    { "ruc": "8AV-123-123456", "dv": "78", "letra": "AV", "source": "juancorradine" },
+    { "ruc": "2AV-1234-1234", "dv": "02", "letra": "AV", "source": "juancorradine" },
+    { "ruc": "13PI-1-196", "dv": "58", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "8PI-1-80", "dv": "05", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "8PI-23-65", "dv": "91", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "2PI-23-65", "dv": "41", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "2PI-123-1234", "dv": "41", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "2PI-1234-12345", "dv": "26", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "2PI-1234-123", "dv": "33", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "2PI-123-123456", "dv": "65", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "2PI-1234-1234", "dv": "02", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "8PI-1234-1234", "dv": "02", "letra": "PI", "source": "juancorradine" },
+    { "ruc": "8PI-1234-12345", "dv": "26", "letra": "PI", "source": "juancorradine" }
+  ],
+  "juridicas": [
+    {
+      "ruc": "2588017-1-831938",
+      "dv": "20",
+      "rolloTomo": "2588017",
+      "folio": "1",
+      "asiento": "831938",
+      "isLegacy": false,
+      "source": "juancorradine"
+    },
+    { "ruc": "1489806-1-645353", "dv": "68", "source": "juancorradine" },
+    { "ruc": "1956569-1-732877", "dv": "00", "source": "juancorradine" },
+    { "ruc": "797609-1-493865", "dv": "12", "source": "juancorradine" },
+    { "ruc": "155720753-2-2022", "dv": "39", "source": "juancorradine" },
+    { "ruc": "15565624-2-2017", "dv": "63", "source": "juancorradine" }
+  ],
+  "juridicas_legacy": [
+    { "ruc": "10102-64-103462", "dv": "30", "source": "juancorradine" },
+    { "ruc": "1102-85-117211", "dv": "95", "source": "juancorradine" },
+    { "ruc": "41425-516-58123", "dv": "41", "source": "juancorradine" },
+    { "ruc": "32425-254-85621", "dv": "68", "source": "juancorradine" },
+    { "ruc": "12388-184-921", "dv": "62", "source": "juancorradine" }
+  ],
+  "naturales_nt": [
+    { "ruc": "8-NT-1-24", "dv": "33", "source": "juancorradine" },
+    { "ruc": "3-NT-465-45624", "dv": "03", "source": "juancorradine" },
+    { "ruc": "9-NT-2-421578", "dv": "50", "source": "juancorradine" },
+    { "ruc": "6-NT-227-888555", "dv": "09", "source": "juancorradine" },
+    { "ruc": "12-NT-45-2154", "dv": "17", "source": "juancorradine" }
+  ],
+  "juridicas_nt": [
+    { "ruc": "8-NT-1-13656", "dv": "43", "source": "juancorradine" },
+    { "ruc": "1-NT-45-56544", "dv": "03", "source": "juancorradine" },
+    { "ruc": "5-NT-478-2351", "dv": "94", "source": "juancorradine" },
+    { "ruc": "7-NT-102-33575", "dv": "03", "source": "juancorradine" },
+    { "ruc": "11-NT-958-2182101", "dv": "82", "source": "juancorradine" },
+    { "ruc": "8-NT-1-1234567", "dv": "49", "source": "juancorradine" },
+    { "ruc": "11-NT-958-218210", "dv": "73", "source": "juancorradine" },
+    { "ruc": "8-NT-1-123456", "dv": "52", "source": "juancorradine" }
+  ],
+  "invalidos": [
+    { "ruc": "", "errorCode": "EMPTY_INPUT" },
+    { "ruc": "BASURA", "errorCode": "TYPE_UNDETECTABLE" },
+    { "ruc": "8-783", "errorCode": "INVALID_FORMAT" },
+    { "ruc": "99-1-1", "errorCode": "UNKNOWN_PROVINCE" },
+    { "ruc": "8-ABC-123", "errorCode": "FOLIO_NOT_NUMERIC" }
+  ]
+}
