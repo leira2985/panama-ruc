@@ -7,6 +7,7 @@
 
 import type { LetraNatural } from "../data/letras.js";
 import type { Provincia } from "../data/provincias.js";
+import type { ParseOptions } from "../types/options.js";
 import type { RucData, RucType } from "../types/ruc.js";
 import { parse, safeParse } from "./parse.js";
 
@@ -29,16 +30,21 @@ export class Ruc {
 
   /**
    * Crea un Ruc desde un string. Lanza error si es inválido.
+   *
+   * @param options Usar `typeHint` para desambiguar RUCs NT o RUCs cortos
+   *   (1-2 dígitos ≤ 14) que podrían ser natural o jurídica-legacy.
    */
-  static from(input: string): Ruc {
-    return new Ruc(parse(input));
+  static from(input: string, options?: ParseOptions): Ruc {
+    return new Ruc(parse(input, options));
   }
 
   /**
    * Crea un Ruc sin lanzar errores. Retorna null si es inválido.
+   *
+   * @param options Usar `typeHint` para desambiguar RUCs NT o RUCs cortos.
    */
-  static tryFrom(input: string): Ruc | null {
-    const result = safeParse(input);
+  static tryFrom(input: string, options?: ParseOptions): Ruc | null {
+    const result = safeParse(input, options);
     return result.ok ? new Ruc(result.value) : null;
   }
 

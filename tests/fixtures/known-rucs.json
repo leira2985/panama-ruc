@@ -98,6 +98,7 @@
     { "ruc": "12388-184-921", "dv": "62", "source": "juancorradine" }
   ],
   "naturales_nt": [
+    { "ruc": "8-NT-783-1657", "dv": "54", "source": "dgi-etax2-validado" },
     { "ruc": "8-NT-1-24", "dv": "33", "source": "juancorradine" },
     { "ruc": "3-NT-465-45624", "dv": "03", "source": "juancorradine" },
     { "ruc": "9-NT-2-421578", "dv": "50", "source": "juancorradine" },
@@ -114,11 +115,24 @@
     { "ruc": "11-NT-958-218210", "dv": "73", "source": "juancorradine" },
     { "ruc": "8-NT-1-123456", "dv": "52", "source": "juancorradine" }
   ],
+  "fincas": [
+    { "ruc": "20-40918", "dv": "90", "source": "dgi-etax2-validado" },
+    { "ruc": "40-30370949", "dv": "97", "source": "dgi-etax2-validado" },
+    { "ruc": "60-30363726", "dv": "90", "source": "dgi-etax2-validado" },
+    { "ruc": "70-38753", "dv": "29", "source": "dgi-etax2-validado" },
+    { "ruc": "70-434323", "dv": "43", "source": "dgi-etax2-validado" },
+    { "ruc": "70-33432", "dv": "38", "source": "dgi-etax2-validado" },
+    { "ruc": "60-40120", "dv": "09", "source": "dgi-etax2-validado" },
+    { "ruc": "80-303009", "dv": "46", "source": "dgi-etax2-validado" },
+    { "ruc": "80-30223847", "dv": "61", "source": "dgi-etax2-validado" },
+    { "ruc": "40-57502", "dv": "82", "source": "dgi-etax2-validado" },
+    { "ruc": "30-19950", "dv": "24", "source": "dgi-etax2-validado" },
+    { "ruc": "70-348520", "dv": "03", "source": "dgi-etax2-validado" },
+    { "ruc": "40-65124", "dv": "00", "source": "dgi-etax2-validado" }
+  ],
   "invalidos": [
     { "ruc": "", "errorCode": "EMPTY_INPUT" },
     { "ruc": "BASURA", "errorCode": "TYPE_UNDETECTABLE" },
-    { "ruc": "8-783", "errorCode": "INVALID_FORMAT" },
-    { "ruc": "99-1-1", "errorCode": "UNKNOWN_PROVINCE" },
     { "ruc": "8-ABC-123", "errorCode": "FOLIO_NOT_NUMERIC" }
   ]
 }

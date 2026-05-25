@@ -10,10 +10,10 @@ import { RUC_ERROR_CODES } from "../../src/errors/codes.js";
 import knownRucs from "../fixtures/known-rucs.json" with { type: "json" };
 
 describe("calculateDV", () => {
-  describe("RUCs naturales conocidos", () => {
+  describe("RUCs naturales conocidos (requieren typeHint: corto ≤14 es ambiguo)", () => {
     for (const fixture of knownRucs.naturales_sin_letra) {
       it(`calcula DV de ${fixture.ruc} → ${fixture.dv}`, () => {
-        expect(calculateDV(fixture.ruc)).toBe(fixture.dv);
+        expect(calculateDV(fixture.ruc, { typeHint: "natural" })).toBe(fixture.dv);
       });
     }
   });
@@ -66,6 +66,14 @@ describe("calculateDV", () => {
     }
   });
 
+  describe("RUCs de Finca conocidos (validados contra DGI oficial)", () => {
+    for (const fixture of knownRucs.fincas) {
+      it(`calcula DV de ${fixture.ruc} → ${fixture.dv}`, () => {
+        expect(calculateDV(fixture.ruc)).toBe(fixture.dv);
+      });
+    }
+  });
+
   it("falla fuerte (AMBIGUOUS_NT_TYPE) en NT sin typeHint", () => {
     const result = safeParse("8-NT-1-13656");
     expect(result.ok).toBe(false);
@@ -80,40 +88,61 @@ describe("calculateDV", () => {
     );
   });
 
-  it("acepta formatos sucios", () => {
-    expect(calculateDV("8 783 1657")).toBe("23");
-    expect(calculateDV("8.783.1657")).toBe("23");
-    expect(calculateDV("  8-783-1657  ")).toBe("23");
+  it("acepta formatos sucios (con typeHint para RUC corto ambiguo)", () => {
+    const h = { typeHint: "natural" } as const;
+    expect(calculateDV("8 779 231", h)).toBe("76");
+    expect(calculateDV("8.779.231", h)).toBe("76");
+    expect(calculateDV("  8-779-231  ", h)).toBe("76");
+  });
+
+  it("falla fuerte (AMBIGUOUS_NATURAL_JURIDICA) en RUC corto ≤14 sin typeHint", () => {
+    // 8-779-231 puede ser natural (DV 76) o jurídica-legacy (DV 70): no se adivina.
+    const result = safeParse("8-779-231");
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe(RUC_ERROR_CODES.AMBIGUOUS_NATURAL_JURIDICA);
+    }
+  });
+
+  it("RUC corto con primer grupo > 14 se resuelve solo como jurídica-legacy", () => {
+    // 82-30-15216 (NESTLE): 82 no es provincia → jurídica-legacy sin ambigüedad.
+    expect(calculateDV("82-30-15216")).toBe("04");
+  });
+
+  it("mismo RUC corto da DV distinto según natural o jurídica (no coincidencia)", () => {
+    expect(calculateDV("8-779-231", { typeHint: "natural" })).not.toBe(
+      calculateDV("8-779-231", { typeHint: "juridica" }),
+    );
   });
 });
 
 describe("validate", () => {
-  it("acepta RUC con DV embebido", () => {
-    const result = validate("8-783-1657-23");
+  it("acepta RUC con DV embebido (jurídica, no ambiguo)", () => {
+    const result = validate("2588017-1-831938-20");
     expect(result.valid).toBe(true);
     if (result.valid) {
-      expect(result.dv).toBe("23");
-      expect(result.type).toBe("natural");
+      expect(result.dv).toBe("20");
+      expect(result.type).toBe("juridica");
     }
   });
 
   it("acepta RUC y DV separados", () => {
-    const result = validate("8-783-1657", "23");
+    const result = validate("2588017-1-831938", "20");
     expect(result.valid).toBe(true);
   });
 
   it("detecta DV incorrecto", () => {
-    const result = validate("8-783-1657", "99");
+    const result = validate("2588017-1-831938", "99");
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.code).toBe(RUC_ERROR_CODES.DV_MISMATCH);
-      expect(result.expected).toBe("23");
+      expect(result.expected).toBe("20");
       expect(result.received).toBe("99");
     }
   });
 
   it("retorna error si no se provee DV", () => {
-    const result = validate("8-783-1657");
+    const result = validate("2588017-1-831938");
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.code).toBe(RUC_ERROR_CODES.DV_MISSING);
@@ -131,21 +160,21 @@ describe("validate", () => {
 
 describe("isValid", () => {
   it("retorna booleano", () => {
-    expect(isValid("8-783-1657", "23")).toBe(true);
-    expect(isValid("8-783-1657", "99")).toBe(false);
+    expect(isValid("2588017-1-831938", "20")).toBe(true);
+    expect(isValid("2588017-1-831938", "99")).toBe(false);
   });
 });
 
 describe("parse", () => {
-  it("parsea RUC natural completo", () => {
-    const result = parse("8-783-1657");
+  it("parsea RUC natural completo (con typeHint)", () => {
+    const result = parse("8-779-231", { typeHint: "natural" });
     expect(result.type).toBe("natural");
-    expect(result.dv).toBe("23");
-    expect(result.fullId).toBe("8-783-1657-23");
+    expect(result.dv).toBe("76");
+    expect(result.fullId).toBe("8-779-231-76");
     if (result.type === "natural") {
       expect(result.provincia?.codigo).toBe("08");
-      expect(result.folio).toBe("783");
-      expect(result.asiento).toBe("1657");
+      expect(result.folio).toBe("779");
+      expect(result.asiento).toBe("231");
     }
   });
 
@@ -166,7 +195,7 @@ describe("parse", () => {
 
 describe("safeParse", () => {
   it("retorna ok:true en éxito", () => {
-    const result = safeParse("8-783-1657");
+    const result = safeParse("8-779-231", { typeHint: "natural" });
     expect(result.ok).toBe(true);
   });
 
@@ -178,7 +207,8 @@ describe("safeParse", () => {
 
 describe("parseMany", () => {
   it("procesa múltiples RUCs", () => {
-    const result = parseMany(["8-783-1657", "2588017-1-831938", "BASURA"]);
+    // RUCs no ambiguos: jurídica (rollo largo) + jurídica-legacy (1er grupo >14).
+    const result = parseMany(["82-30-15216", "2588017-1-831938", "BASURA"]);
     expect(result.total).toBe(3);
     expect(result.validCount).toBe(2);
     expect(result.invalidCount).toBe(1);
@@ -186,7 +216,7 @@ describe("parseMany", () => {
   });
 
   it("respeta continueOnError=false", () => {
-    const result = parseMany(["BASURA", "8-783-1657"], {
+    const result = parseMany(["BASURA", "82-30-15216"], {
       continueOnError: false,
     });
     expect(result.invalidCount).toBe(2);
@@ -195,9 +225,9 @@ describe("parseMany", () => {
 
 describe("extractFromText", () => {
   it("extrae un RUC con DV de texto", () => {
-    const found = extractFromText("Cliente RUC 8-783-1657-23 paga $500");
+    const found = extractFromText("Cliente RUC 2588017-1-831938-20 paga $500");
     expect(found.length).toBeGreaterThanOrEqual(1);
-    expect(found[0]?.normalizedRuc).toBe("8-783-1657");
+    expect(found[0]?.normalizedRuc).toBe("2588017-1-831938");
   });
 
   it("retorna array vacío si no hay RUCs", () => {
@@ -247,25 +277,29 @@ describe("generate", () => {
 });
 
 describe("Ruc class", () => {
-  it("crea desde string válido", () => {
-    const ruc = Ruc.from("8-783-1657");
-    expect(ruc.dv).toBe("23");
+  it("crea desde string válido (natural con typeHint)", () => {
+    const ruc = Ruc.from("8-779-231", { typeHint: "natural" });
+    expect(ruc.dv).toBe("76");
     expect(ruc.type).toBe("natural");
-    expect(ruc.toString()).toBe("8-783-1657-23");
+    expect(ruc.toString()).toBe("8-779-231-76");
   });
 
   it("tryFrom retorna null en error", () => {
     expect(Ruc.tryFrom("BASURA")).toBeNull();
   });
 
+  it("tryFrom retorna null en RUC corto ambiguo sin typeHint", () => {
+    expect(Ruc.tryFrom("8-779-231")).toBeNull();
+  });
+
   it("isValid compara DVs", () => {
-    const ruc = Ruc.from("8-783-1657");
-    expect(ruc.isValid("23")).toBe(true);
+    const ruc = Ruc.from("8-779-231", { typeHint: "natural" });
+    expect(ruc.isValid("76")).toBe(true);
     expect(ruc.isValid("99")).toBe(false);
   });
 
   it("expone provincia para naturales", () => {
-    const ruc = Ruc.from("8-783-1657");
+    const ruc = Ruc.from("8-779-231", { typeHint: "natural" });
     expect(ruc.provincia?.codigo).toBe("08");
   });
 
@@ -275,8 +309,8 @@ describe("Ruc class", () => {
   });
 
   it("serializa a JSON", () => {
-    const ruc = Ruc.from("8-783-1657");
+    const ruc = Ruc.from("8-779-231", { typeHint: "natural" });
     const json = ruc.toJSON();
-    expect(json.dv).toBe("23");
+    expect(json.dv).toBe("76");
   });
 });

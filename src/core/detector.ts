@@ -17,6 +17,13 @@ import type { RucType } from "../types/ruc.js";
 import { isAllDigits } from "./normalizer.js";
 
 /**
+ * Código de provincia/comarca más alto válido en la DGI (Naso Tjër Di = 14).
+ * Un primer grupo numérico mayor a esto no puede ser una provincia, así que el
+ * RUC sólo puede ser jurídica-legacy (no natural).
+ */
+const MAX_PROVINCIA_CODE = 14;
+
+/**
  * Resultado de la detección con información adicional.
  */
 export interface DetectionResult {
@@ -56,6 +63,17 @@ export function detectTypeDetailed(normalizedRuc: string): DetectionResult {
     };
   }
 
+  // Detección 2: Finca (inmueble). Formato de DOS partes numéricas
+  // "provincia-finca" (ej. "8-30213562"). Es el único tipo con exactamente 2
+  // segmentos; natural/jurídica tienen 3 y NT tiene 4, así que no hay ambigüedad.
+  if (parts.length === 2 && isAllDigits(firstPart) && isAllDigits(parts[1] ?? "")) {
+    return {
+      type: "finca",
+      confidence: "high",
+      reason: "Formato de dos partes (provincia-finca): inmueble",
+    };
+  }
+
   // Detección 3: Natural con letra inicial completa (E, PE, N)
   if (
     firstPart === LETRAS_NATURAL.EXTRANJERO.letra ||
@@ -87,12 +105,32 @@ export function detectTypeDetailed(normalizedRuc: string): DetectionResult {
     }
   }
 
-  // Detección 5: Natural simple - provincia (1-2 dígitos) + 2 partes más
+  // Detección 5: primera parte de 1-2 dígitos (formato n-n-n).
+  // Aquí está el solapamiento real entre natural y jurídica-legacy:
+  //   - Una persona NATURAL usa la provincia (códigos 00-14) como primer grupo.
+  //   - Una JURÍDICA ANTIGUA (legacy) usa un tomo corto que también cabe en 1-2
+  //     dígitos, y puede valer más de 14.
+  // Regla derivada (validada contra el oráculo oficial de la DGI):
+  //   - Si el primer grupo es > 14, NO puede ser provincia → es jurídica-legacy
+  //     sin ambigüedad.
+  //   - Si es <= 14, el mismo texto produce DV distinto según se interprete como
+  //     natural o jurídica-legacy (ej. "8-779-231": natural=76, jurídica=70). No
+  //     se puede decidir solo con el número: es ambiguo a propósito y se resuelve
+  //     en parse() (typeHint explícito o error AMBIGUOUS_NATURAL_JURIDICA).
   if (isAllDigits(firstPart) && firstPart.length <= 2 && parts.length === 3) {
+    const code = Number.parseInt(firstPart, 10);
+    if (code > MAX_PROVINCIA_CODE) {
+      return {
+        type: "juridica",
+        confidence: "high",
+        reason: `Primer grupo ${firstPart} > ${MAX_PROVINCIA_CODE}: no es provincia, es jurídica-legacy`,
+      };
+    }
     return {
       type: "natural",
-      confidence: "high",
-      reason: "Formato provincia-folio-asiento",
+      confidence: "low",
+      reason:
+        "Formato corto (1-2 díg): ambiguo entre natural (provincia) y jurídica-legacy; subtipo se resuelve en parse()",
     };
   }
 

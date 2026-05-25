@@ -6,6 +6,7 @@
  */
 
 import { computeFullDv } from "../core/algorithm.js";
+import { RUC_ERROR_CODES } from "../errors/codes.js";
 import type { ExtractOptions } from "../types/options.js";
 import type { ExtractedRuc } from "../types/result.js";
 import { safeParse } from "./parse.js";
@@ -58,11 +59,29 @@ export function extractFromText(
       // Evitar duplicados en la misma posición (entre patrones)
       if (seenPositions.has(position)) continue;
 
-      const parsed = safeParse(rucString);
+      const extractedDv = match[2] ?? null;
+
+      let parsed = safeParse(rucString);
+      // RUC corto ambiguo (natural vs jurídica-legacy): si trae DV embebido,
+      // lo usamos para elegir la interpretación correcta; si no, asumimos
+      // natural (el caso más común para formato corto: cédulas de persona).
+      if (!parsed.ok && parsed.error.code === RUC_ERROR_CODES.AMBIGUOUS_NATURAL_JURIDICA) {
+        const wantedDv = extractedDv ? extractedDv.padStart(2, "0") : null;
+        let chosen = safeParse(rucString, { typeHint: "natural" });
+        if (wantedDv) {
+          for (const typeHint of ["natural", "juridica"] as const) {
+            const attempt = safeParse(rucString, { typeHint });
+            if (attempt.ok && attempt.value.dv === wantedDv) {
+              chosen = attempt;
+              break;
+            }
+          }
+        }
+        parsed = chosen;
+      }
       if (!parsed.ok) continue;
 
       const rucData = parsed.value;
-      const extractedDv = match[2] ?? null;
 
       let dvValid: boolean | null = null;
       if (validateDv && extractedDv) {

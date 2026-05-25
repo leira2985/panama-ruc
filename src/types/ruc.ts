@@ -8,7 +8,7 @@ import type { Provincia } from "../data/provincias.js";
 /**
  * Tipos de RUC soportados según DGI Panamá.
  */
-export type RucType = "natural" | "natural-nt" | "juridica" | "juridica-nt";
+export type RucType = "natural" | "natural-nt" | "juridica" | "juridica-nt" | "finca";
 
 /**
  * Resultado del parseo de un RUC Natural (cédula).
@@ -83,6 +83,26 @@ export interface JuridicaNtRucData {
 }
 
 /**
+ * Resultado del parseo de un RUC de Finca (inmueble).
+ * Formato: provincia-finca (dos partes).
+ */
+export interface FincaRucData {
+  readonly type: "finca";
+  readonly ruc: string;
+  readonly normalizedRuc: string;
+  readonly dv: string;
+  readonly fullId: string;
+  readonly provincia: Provincia | null;
+  /** Número de finca (inmueble) */
+  readonly finca: string;
+}
+
+/**
  * Union de todos los tipos de datos posibles de RUC.
  */
-export type RucData = NaturalRucData | NaturalNtRucData | JuridicaRucData | JuridicaNtRucData;
+export type RucData =
+  | NaturalRucData
+  | NaturalNtRucData
+  | JuridicaRucData
+  | JuridicaNtRucData
+  | FincaRucData;

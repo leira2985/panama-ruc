@@ -5,6 +5,41 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
+## [0.3.0] - 2026-05-24
+
+Versión validada **contra el consultador oficial de la DGI** (etax2 ConsultarDV).
+Se auditó el motor con ~64 RUC jurídicos reales (Grandes Contribuyentes) y 13
+fincas reales, además de casos natural/NT confirmados, alcanzando **100% de
+coincidencia** con el DV oficial.
+
+### Agregado
+
+- 🏠 **Soporte completo para Finca (inmueble)** — 5º tipo de contribuyente.
+  Formato de dos partes `provincia-finca` (ej. `8-30213562`). El número de finca
+  se rellena a 8 dígitos **a la derecha** (hallazgo validado con 13 fincas reales
+  de la DGI, 13/13). Nuevo tipo `FincaRucData` y `type: "finca"`.
+- 🛡️ Nuevo error tipado **`AMBIGUOUS_NATURAL_JURIDICA`**: un RUC de formato corto
+  (primer grupo de 1-2 dígitos ≤ 14) puede ser persona **natural** o **jurídica
+  antigua**, con DV distinto. Sin `typeHint`, `calculateDV`/`parse` fallan de
+  forma explícita en vez de adivinar.
+- ✨ `typeHint` agregado a `validate`, `isValid` y `Ruc.from`/`Ruc.tryFrom`.
+
+### Corregido
+
+- 🐛 **Jurídicas antiguas con tomo corto** (ej. `82-30-15216` NESTLE, `39-35-5021`
+  CITIBANK) eran rechazadas como "provincia no reconocida". Ahora, si el primer
+  grupo es > 14 (no puede ser provincia), se clasifican correctamente como
+  jurídica-legacy.
+- 🐛 RUC corto que el detector mandaba siempre a "natural" podía devolver un DV
+  equivocado para empresas antiguas. Ahora se desambigua (ver arriba).
+
+### Cambios incompatibles (breaking)
+
+- ⚠️ `calculateDV` / `parse` ahora **lanzan `AMBIGUOUS_NATURAL_JURIDICA`** para
+  RUC cortos (≤14) sin `typeHint`, donde antes devolvían un DV asumido como
+  natural. Migración: pasá `{ typeHint: "natural" }` o `{ typeHint: "juridica" }`.
+  `validate`/`extractFromText` no cambian su firma de uso (desambiguan con el DV).
+
 ## [0.2.1] - 2026-05-22
 
 ### Mantenimiento

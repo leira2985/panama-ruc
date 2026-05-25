@@ -56,11 +56,17 @@ describe("detectType", () => {
 });
 
 describe("detectTypeDetailed", () => {
-  it("retorna razón legible", () => {
+  it("retorna razón legible (RUC corto ≤14 es ambiguo: confidence low)", () => {
     const result = detectTypeDetailed("8-783-1657");
     expect(result.type).toBe("natural");
+    expect(result.confidence).toBe("low");
+    expect(result.reason).toContain("ambiguo");
+  });
+
+  it("RUC corto con primer grupo >14 es jurídica-legacy sin ambigüedad", () => {
+    const result = detectTypeDetailed("82-30-15216");
+    expect(result.type).toBe("juridica");
     expect(result.confidence).toBe("high");
-    expect(result.reason).toContain("provincia");
   });
 
   it("indica baja confianza en casos ambiguos", () => {

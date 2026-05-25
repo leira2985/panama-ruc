@@ -7,10 +7,11 @@ import { normalize } from "../../src/core/normalizer.js";
 
 describe("Property-based: invariantes", () => {
   it("Todo RUC generado pasa su propia validación", () => {
+    // validate() prueba ambas interpretaciones para RUC corto ambiguo, así que
+    // un RUC generado (natural o jurídica) con su DV embebido valida sin hint.
     const rucs = generate({ count: 100, seed: 12345 }) as string[];
     for (const ruc of rucs) {
-      const result = validate(ruc);
-      expect(result.valid).toBe(true);
+      expect(validate(ruc).valid).toBe(true);
     }
   });
 
@@ -25,17 +26,21 @@ describe("Property-based: invariantes", () => {
 
   it("calculateDV es determinístico", () => {
     const ruc = "8-783-1657";
-    const a = calculateDV(ruc);
-    const b = calculateDV(ruc);
-    const c = calculateDV(ruc);
+    const h = { typeHint: "natural" } as const;
+    const a = calculateDV(ruc, h);
+    const b = calculateDV(ruc, h);
+    const c = calculateDV(ruc, h);
     expect(a).toBe(b);
     expect(b).toBe(c);
   });
 
   it("parse(x).normalizedRuc + parse(x).dv === parse(x).fullId", () => {
-    const samples = ["8-783-1657", "2588017-1-831938"];
-    for (const s of samples) {
-      const data = parse(s);
+    const samples = [
+      { ruc: "8-783-1657", typeHint: "natural" as const },
+      { ruc: "2588017-1-831938", typeHint: undefined },
+    ];
+    for (const { ruc, typeHint } of samples) {
+      const data = parse(ruc, typeHint ? { typeHint } : undefined);
       expect(`${data.normalizedRuc}-${data.dv}`).toBe(data.fullId);
     }
   });

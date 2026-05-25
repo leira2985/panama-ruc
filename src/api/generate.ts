@@ -81,7 +81,9 @@ function generateNatural(rng: () => number, provinciaName?: string): string {
   const asiento = randomInt(rng, 1, 99999);
 
   const ruc = `${Number.parseInt(provincia.codigo, 10)}-${folio}-${asiento}`;
-  const dv = calculateDV(ruc);
+  // El generador sabe que está creando un natural: pasa el typeHint para evitar
+  // la ambigüedad natural/jurídica-legacy en provincias ≤ 14.
+  const dv = calculateDV(ruc, { typeHint: "natural" });
   return `${ruc}-${dv}`;
 }
 
@@ -91,6 +93,6 @@ function generateJuridica(rng: () => number): string {
   const asiento = randomInt(rng, 1, 999999);
 
   const ruc = `${rolloTomo}-${folio}-${asiento}`;
-  const dv = calculateDV(ruc);
+  const dv = calculateDV(ruc, { typeHint: "juridica" });
   return `${ruc}-${dv}`;
 }

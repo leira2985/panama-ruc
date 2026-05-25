@@ -5,12 +5,13 @@ import { parseMany } from "../../src/api/parse-many.js";
 
 describe("Performance", () => {
   it("calculateDV es < 5µs por llamada (warmup + 10000 iteraciones)", () => {
+    const h = { typeHint: "natural" } as const;
     // Warmup
-    for (let i = 0; i < 1000; i++) calculateDV("8-783-1657");
+    for (let i = 0; i < 1000; i++) calculateDV("8-783-1657", h);
 
     const start = performance.now();
     for (let i = 0; i < 10000; i++) {
-      calculateDV("8-783-1657");
+      calculateDV("8-783-1657", h);
     }
     const elapsed = performance.now() - start;
     const perCallUs = (elapsed / 10000) * 1000;
@@ -20,8 +21,8 @@ describe("Performance", () => {
   });
 
   it("parseMany de 10000 RUCs en < 200ms", () => {
-    // Generar 10000 RUCs únicos
-    const rucs = generate({ count: 10000, seed: 42 }) as string[];
+    // Jurídicas: no ambiguas, parseMany las resuelve sin typeHint.
+    const rucs = generate({ type: "juridica", count: 10000, seed: 42 }) as string[];
 
     const start = performance.now();
     const result = parseMany(rucs, { useCache: false });
@@ -35,7 +36,8 @@ describe("Performance", () => {
   });
 
   it("parseMany con cache es mucho más rápido en duplicados", () => {
-    const ruc = "8-783-1657";
+    // RUC jurídica-legacy (1er grupo >14): no ambiguo, no requiere typeHint.
+    const ruc = "82-30-15216";
     const inputs = new Array(10000).fill(ruc);
 
     const start = performance.now();
