@@ -1,6 +1,6 @@
 {
   "name": "@workflow507/panama-ruc",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Motor ultra rápido de cálculo y validación del Dígito Verificador (DV) del RUC en Panamá. Sin dependencias. Funciona en Node, Bun, Deno, Cloudflare Workers y navegadores.",
   "keywords": [
     "panama",

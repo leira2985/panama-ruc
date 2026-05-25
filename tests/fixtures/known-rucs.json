@@ -128,7 +128,14 @@
     { "ruc": "40-57502", "dv": "82", "source": "dgi-etax2-validado" },
     { "ruc": "30-19950", "dv": "24", "source": "dgi-etax2-validado" },
     { "ruc": "70-348520", "dv": "03", "source": "dgi-etax2-validado" },
-    { "ruc": "40-65124", "dv": "00", "source": "dgi-etax2-validado" }
+    { "ruc": "40-65124", "dv": "00", "source": "dgi-etax2-validado" },
+    {
+      "ruc": "8-30213562",
+      "dv": "68",
+      "source": "dgi-etax2-validado",
+      "nota": "provincia 1 díg = 8 ≡ 80 (relleno a la derecha)"
+    },
+    { "ruc": "80-30213562", "dv": "68", "source": "dgi-etax2-validado" }
   ],
   "invalidos": [
     { "ruc": "", "errorCode": "EMPTY_INPUT" },

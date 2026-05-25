@@ -5,6 +5,19 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
+## [0.4.1] - 2026-05-25
+
+### Corregido
+
+- 🏠 **Finca con provincia de 1 dígito**: el primer grupo del RUC de finca es la
+  provincia de ubicación (1-9) y se escribe con cero a la derecha (`8` ≡ `80`),
+  según la estructura oficial de la DGI (posición 2 = provincia 1-9, relleno a la
+  derecha). Antes se rellenaba a la izquierda (`8`→`08`), dando un DV incorrecto.
+  Ahora `8-30213562` y `80-30213562` producen el mismo DV (68), como la DGI.
+- 🗺️ El campo `provincia` de finca ahora refleja la **provincia de ubicación del
+  inmueble** (ej. 8 → Panamá), no una provincia de cédula. Validado con 15 fincas
+  reales contra el consultador oficial.
+
 ## [0.4.0] - 2026-05-25
 
 Ajuste de diseño tras validar el comportamiento real de la DGI (cada tipo de

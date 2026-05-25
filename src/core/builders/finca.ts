@@ -60,8 +60,10 @@ export function buildFincaRuctb(input: FincaRuctbInput): FincaRuctbResult {
     });
   }
 
-  const provPadded = provinciaCode.padStart(2, "0");
-  // Relleno a la DERECHA: característica propia del tipo finca.
+  // Relleno a la DERECHA en AMBOS campos (característica propia del tipo finca):
+  // el primer grupo "8" se trata como "80", por eso "8-30213562" y "80-30213562"
+  // producen el mismo DV en la DGI. Validado contra ConsultarDV oficial.
+  const provPadded = provinciaCode.padEnd(2, "0");
   const fincaPadded = finca.padEnd(FINCA_WIDTH, "0");
   const ructb = `${provPadded}${fincaPadded}`.padStart(RUCTB_LENGTH, "0");
 
