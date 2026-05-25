@@ -17,22 +17,23 @@ Calcula y valida el **Dígito Verificador (DV)** del RUC en Panamá según el al
 ```typescript
 import { calculateDV, validate, parse, Ruc } from '@workflow507/panama-ruc';
 
-// Jurídica (proveedores/empresas)
+// Natural (cédula): el tipo se detecta solo por el formato
+calculateDV("8-783-1657");            // → "23"
+
+// Jurídica (empresas)
 calculateDV("2588017-1-831938");      // → "20"
 
 // Finca (inmueble): formato de dos partes
 calculateDV("8-30213562");            // → DV oficial
 
-// Natural: el RUC corto (provincia ≤14) es ambiguo con jurídica antigua,
-// así que hay que indicar el tipo para no calcular un DV equivocado.
-calculateDV("8-783-1657", { typeHint: "natural" });   // → "23"
-
-// validate() SÍ puede sin typeHint: usa el DV provisto para desambiguar.
-validate("8-783-1657-23");            // → { valid: true, dv: "23", type: "natural" }
-
-parse("8-783-1657", { typeHint: "natural" });
-// → { type: "natural", dv: "23", fullId: "8-783-1657-23",
+parse("8-783-1657");
+// → { type: "natural", dv: "23", fullId: "8-783-1657 DV23",
 //     provincia: { codigo: "08", nombre: "Panamá" }, folio: "783", asiento: "1657" }
+
+// El motor SIEMPRE devuelve un tipo detectado por el formato. Para el caso raro
+// de una empresa antigua con formato de cédula (ej. "2-221-78" = CIA. DE SEGUROS S.A.),
+// pasá el tipo y recalcula:
+calculateDV("2-221-78", { typeHint: "juridica" });   // → "56"
 ```
 
 ### ¿Por qué este paquete?
@@ -45,7 +46,7 @@ parse("8-783-1657", { typeHint: "natural" });
 - 🧮 **Los 5 tipos**: Natural, Natural NT, Jurídica (+ legacy), Jurídica NT, Finca.
 - 🧹 **Acepta inputs sucios**: `"8 783 1657"`, `"8.783.1657"`, `"  8-783-1657  "`
 - 🆕 **Actualizado**: Incluye Comarca Naso Tjër Di (Ley 656 de 2020)
-- 🔒 **No adivina en casos ambiguos**: ante un RUC que podría ser de dos tipos con DV distinto, exige `typeHint` en lugar de devolver un valor potencialmente incorrecto (clave en contexto fiscal).
+- 🎛️ **Tipo detectado por formato, sobreescribible**: cada resultado trae `type`; podés forzar otro con `typeHint` y recalcular (ideal para un selector de tipo en la UI).
 - 🔧 **API funcional + OOP**: Usá lo que prefieras
 
 ### Instalación
@@ -72,17 +73,16 @@ import {
   generate,
 } from '@workflow507/panama-ruc';
 
-// Calcular DV
-calculateDV("2588017-1-831938");              // "20"  (jurídica, no ambiguo)
-calculateDV("8-783-1657", { typeHint: "natural" }); // "23" (corto ⇒ typeHint)
+// Calcular DV (el tipo se detecta por formato)
+calculateDV("8-783-1657");                    // "23"  (natural)
+calculateDV("2588017-1-831938");              // "20"  (jurídica)
 calculateDV("8-30213562");                    // finca (dos partes)
 
-// Validar (no necesita typeHint: desambigua con el DV provisto)
-validate("8-783-1657", "23");                 // { valid: true, ... }
-validate("8-783-1657-23");                    // { valid: true, ... }
+// Validar
+validate("8-783-1657", "23");                 // { valid: true, type: "natural" }
 
 // Parsear info completa
-const data = parse("8-783-1657", { typeHint: "natural" });
+const data = parse("8-783-1657");
 console.log(data.provincia?.nombre);          // "Panamá"
 
 // Procesar lote
@@ -102,11 +102,11 @@ const rucs = generate({ type: "natural", count: 10, seed: 42 });
 ```typescript
 import { Ruc } from '@workflow507/panama-ruc';
 
-const ruc = Ruc.from("8-783-1657", { typeHint: "natural" });
+const ruc = Ruc.from("8-783-1657");
 console.log(ruc.dv);                          // "23"
 console.log(ruc.type);                        // "natural"
 console.log(ruc.provincia?.nombre);           // "Panamá"
-console.log(ruc.toString());                  // "8-783-1657-23"
+console.log(ruc.toString());                  // "8-783-1657 DV23"
 console.log(ruc.isValid("23"));               // true
 ```
 
@@ -167,7 +167,7 @@ $ panama-ruc parse 8-783-1657
 ┌─────────────────────────────────────┐
 │ RUC:        8-783-1657              │
 │ DV:         23                      │
-│ Completo:   8-783-1657-23           │
+│ Completo:   8-783-1657 DV23         │
 │ Tipo:       natural                 │
 │ Provincia:  Panamá                  │
 │ Folio:      783                     │
@@ -197,7 +197,7 @@ $ panama-ruc batch rucs.csv
 | Finca con letra (SB/EE) | Variados | ❌ DGI no publica algoritmo |
 
 ¹ El formato NT (`provincia-NT-folio-asiento`) no distingue natural-nt de juridica-nt: pasá `typeHint`.
-² El formato corto (primer grupo de 1-2 dígitos ≤ 14) es ambiguo entre **natural** y **jurídica antigua** (producen DV distinto). `calculateDV`/`parse` exigen `typeHint`; `validate`/`extractFromText` lo resuelven con el DV. Si el primer grupo es > 14, solo puede ser jurídica antigua y se resuelve solo.
+² El formato corto (primer grupo de 1-2 dígitos ≤ 14) se interpreta como **persona natural** (la provincia de la cédula), que es lo correcto casi siempre. Una empresa antigua puede compartir ese formato y dar otro DV (ej. `2-221-78` = CIA. DE SEGUROS S.A. → jurídica): el nombre comercial lo revela y se fuerza con `typeHint: "juridica"`. Si el primer grupo es > 14 no puede ser provincia → se detecta jurídica solo.
 
 > ¹ Los dos tipos NT comparten el formato textual `provincia-NT-folio-asiento` pero
 > producen un DV distinto. Como no se pueden distinguir solo por el texto, debés
@@ -272,10 +272,10 @@ Calculates and validates the **Check Digit (DV)** of Panama's Single Taxpayer Re
 ```typescript
 import { calculateDV, validate, parse } from '@workflow507/panama-ruc';
 
+calculateDV("8-783-1657");                          // → "23"  (natural)
 calculateDV("2588017-1-831938");                    // → "20"  (legal entity)
-calculateDV("8-783-1657", { typeHint: "natural" }); // → "23"  (short RUC is ambiguous)
 calculateDV("8-30213562");                          // → property (finca)
-validate("8-783-1657-23");                          // → { valid: true, dv: "23", type: "natural" }
+calculateDV("2-221-78", { typeHint: "juridica" });  // → "56"  (old company w/ ID-like format)
 ```
 
 ### Why this package?
@@ -286,7 +286,7 @@ validate("8-783-1657-23");                          // → { valid: true, dv: "2
 - 🎯 **Fully typed**: TypeScript-first with discriminated unions
 - 🛡️ **Validated against the official DGI lookup**: every type's DV was cross-checked against DGI's official checker. 168 tests.
 - 🧮 **All 5 taxpayer types**: Natural, Natural NT, Legal Entity (+ legacy), Legal Entity NT, Property (Finca).
-- 🔒 **Never guesses ambiguous cases**: when a RUC could be two types with different DVs, it requires `typeHint` instead of returning a possibly-wrong value.
+- 🎛️ **Type detected from format, overridable**: each result carries `type`; override with `typeHint` and recalculate (great for a UI type selector).
 
 ### Installation
 

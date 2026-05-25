@@ -95,24 +95,26 @@ describe("calculateDV", () => {
     expect(calculateDV("  8-779-231  ", h)).toBe("76");
   });
 
-  it("falla fuerte (AMBIGUOUS_NATURAL_JURIDICA) en RUC corto ≤14 sin typeHint", () => {
-    // 8-779-231 puede ser natural (DV 76) o jurídica-legacy (DV 70): no se adivina.
+  it("RUC corto ≤14 se interpreta como Persona Natural por defecto", () => {
+    // 8-779-231: por formato es cédula (provincia 8). El motor da natural directo.
     const result = safeParse("8-779-231");
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.code).toBe(RUC_ERROR_CODES.AMBIGUOUS_NATURAL_JURIDICA);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.type).toBe("natural");
+      expect(result.value.dv).toBe("76");
     }
   });
 
-  it("RUC corto con primer grupo > 14 se resuelve solo como jurídica-legacy", () => {
-    // 82-30-15216 (NESTLE): 82 no es provincia → jurídica-legacy sin ambigüedad.
-    expect(calculateDV("82-30-15216")).toBe("04");
+  it("typeHint permite forzar jurídica en RUC corto (empresa antigua tipo S.A.)", () => {
+    // 2-221-78 = COMPAÑÍA INTERNACIONAL DE SEGUROS S A → jurídica, DV 56.
+    expect(calculateDV("2-221-78", { typeHint: "juridica" })).toBe("56");
+    // El mismo número como natural da otro DV (por eso el sistema decide por el nombre).
+    expect(calculateDV("2-221-78", { typeHint: "natural" })).not.toBe("56");
   });
 
-  it("mismo RUC corto da DV distinto según natural o jurídica (no coincidencia)", () => {
-    expect(calculateDV("8-779-231", { typeHint: "natural" })).not.toBe(
-      calculateDV("8-779-231", { typeHint: "juridica" }),
-    );
+  it("RUC corto con primer grupo > 14 se resuelve solo como jurídica", () => {
+    // 82-30-15216 (NESTLE): 82 no es provincia → jurídica sin ambigüedad.
+    expect(calculateDV("82-30-15216")).toBe("04");
   });
 });
 
@@ -170,7 +172,7 @@ describe("parse", () => {
     const result = parse("8-779-231", { typeHint: "natural" });
     expect(result.type).toBe("natural");
     expect(result.dv).toBe("76");
-    expect(result.fullId).toBe("8-779-231-76");
+    expect(result.fullId).toBe("8-779-231 DV76");
     if (result.type === "natural") {
       expect(result.provincia?.codigo).toBe("08");
       expect(result.folio).toBe("779");
@@ -281,15 +283,17 @@ describe("Ruc class", () => {
     const ruc = Ruc.from("8-779-231", { typeHint: "natural" });
     expect(ruc.dv).toBe("76");
     expect(ruc.type).toBe("natural");
-    expect(ruc.toString()).toBe("8-779-231-76");
+    expect(ruc.toString()).toBe("8-779-231 DV76");
   });
 
   it("tryFrom retorna null en error", () => {
     expect(Ruc.tryFrom("BASURA")).toBeNull();
   });
 
-  it("tryFrom retorna null en RUC corto ambiguo sin typeHint", () => {
-    expect(Ruc.tryFrom("8-779-231")).toBeNull();
+  it("tryFrom resuelve RUC corto como natural (no null)", () => {
+    const ruc = Ruc.tryFrom("8-779-231");
+    expect(ruc).not.toBeNull();
+    expect(ruc?.type).toBe("natural");
   });
 
   it("isValid compara DVs", () => {

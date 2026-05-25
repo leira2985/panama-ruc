@@ -26,22 +26,18 @@ describe("Property-based: invariantes", () => {
 
   it("calculateDV es determinístico", () => {
     const ruc = "8-783-1657";
-    const h = { typeHint: "natural" } as const;
-    const a = calculateDV(ruc, h);
-    const b = calculateDV(ruc, h);
-    const c = calculateDV(ruc, h);
+    const a = calculateDV(ruc);
+    const b = calculateDV(ruc);
+    const c = calculateDV(ruc);
     expect(a).toBe(b);
     expect(b).toBe(c);
   });
 
-  it("parse(x).normalizedRuc + parse(x).dv === parse(x).fullId", () => {
-    const samples = [
-      { ruc: "8-783-1657", typeHint: "natural" as const },
-      { ruc: "2588017-1-831938", typeHint: undefined },
-    ];
-    for (const { ruc, typeHint } of samples) {
-      const data = parse(ruc, typeHint ? { typeHint } : undefined);
-      expect(`${data.normalizedRuc}-${data.dv}`).toBe(data.fullId);
+  it("parse(x).fullId === `${normalizedRuc} DV${dv}`", () => {
+    const samples = ["8-783-1657", "2588017-1-831938", "8-30213562"];
+    for (const ruc of samples) {
+      const data = parse(ruc);
+      expect(data.fullId).toBe(`${data.normalizedRuc} DV${data.dv}`);
     }
   });
 

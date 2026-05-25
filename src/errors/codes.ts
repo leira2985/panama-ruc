@@ -10,7 +10,6 @@ export const RUC_ERROR_CODES = {
   INVALID_FORMAT: "INVALID_FORMAT",
   TYPE_UNDETECTABLE: "TYPE_UNDETECTABLE",
   AMBIGUOUS_NT_TYPE: "AMBIGUOUS_NT_TYPE",
-  AMBIGUOUS_NATURAL_JURIDICA: "AMBIGUOUS_NATURAL_JURIDICA",
 
   // Errores de provincia
   UNKNOWN_PROVINCE: "UNKNOWN_PROVINCE",
@@ -53,8 +52,6 @@ export const DEFAULT_MESSAGES: Readonly<Record<RucErrorCode, string>> = {
   TYPE_UNDETECTABLE: "No se pudo determinar el tipo de RUC",
   AMBIGUOUS_NT_TYPE:
     "El formato NT no permite distinguir entre natural-nt y juridica-nt. Especifique el tipo explícitamente con la opción { type }",
-  AMBIGUOUS_NATURAL_JURIDICA:
-    "El formato corto (provincia/tomo de 1-2 dígitos ≤ 14) no permite distinguir entre persona natural y jurídica antigua: producen DV distinto. Especifique el tipo con la opción typeHint ('natural' o 'juridica')",
 
   UNKNOWN_PROVINCE: "Código de provincia no reconocido",
   INVALID_PROVINCE_CODE: "Código de provincia con formato inválido",

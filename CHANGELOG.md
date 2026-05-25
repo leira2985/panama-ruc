@@ -5,6 +5,31 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
+## [0.4.0] - 2026-05-25
+
+Ajuste de diseño tras validar el comportamiento real de la DGI (cada tipo de
+contribuyente produce un DV distinto del mismo número, y el tipo se decide por
+el **formato** del RUC, no se adivina al azar).
+
+### Cambiado (incompatible)
+
+- 🔤 **Formato de `fullId` / `toString()`**: ahora es `8-783-1657 DV23` (RUC,
+  espacio, sigla `DV` + dígitos), como lo escribe la DGI. Antes era el guion
+  pegado `8-783-1657-23`, que no es un formato oficial.
+- 🧭 **RUC corto (1-2 díg ≤ 14) ya NO lanza error**: se interpreta como
+  **persona natural** (la provincia de la cédula), que es lo correcto en la
+  práctica. Se eliminó el error `AMBIGUOUS_NATURAL_JURIDICA` introducido en
+  0.3.0. Para el caso raro de una empresa antigua con ese formato (delatada por
+  su nombre, ej. "S.A."), se fuerza con `{ typeHint: "juridica" }` y recalcula.
+
+### Notas
+
+- El resultado siempre incluye `type` (detectado por formato). Pensado para
+  alimentar un selector de tipo en la UI: mostrar el tipo elegido y permitir
+  cambiarlo + recalcular en vivo.
+- `validate` / `extractFromText` ya no requieren lógica especial de
+  desambiguación (el RUC corto resuelve a natural directo).
+
 ## [0.3.0] - 2026-05-24
 
 Versión validada **contra el consultador oficial de la DGI** (etax2 ConsultarDV).
